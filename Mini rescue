@@ -1,0 +1,222 @@
+#include <SoftwareSerial.h>
+#include <Servo.h>
+
+// Izquierda
+int Motor1A = 2;
+int Motor1B = 3;
+
+// Derecha
+int Motor2B = 4;
+int Motor2A = 5;
+
+// Servos
+int posrotor = 90;
+int posgarra = 180;
+int pos = 90;
+int pos2 = 90;
+
+int Prepos1 = 90;
+int Prepos2 = 90;
+int Preposrotor = 90;
+int Preposgarra = 180;
+
+Servo servo1;
+Servo servo2;
+Servo servogarra;
+Servo servorotor;
+
+void setup() {
+  // CONEXIÓN SERIAL
+  Serial.begin(115200);
+
+  // MOTORES
+  pinMode(Motor1A, OUTPUT);
+  pinMode(Motor2A, OUTPUT);
+  pinMode(Motor1B, OUTPUT);
+  pinMode(Motor2B, OUTPUT);
+
+  digitalWrite(Motor1A, LOW);
+  digitalWrite(Motor2A, LOW);
+  digitalWrite(Motor1B, LOW);
+  digitalWrite(Motor2B, LOW);
+
+  // SERVOS
+  servogarra.attach(12);
+  servo1.attach(9);
+  servo2.attach(10);
+  servorotor.attach(8);
+
+  Serial.println("Conexion establecida");
+}
+
+void loop() {
+  if (Serial.available() > 0) {
+    char currentCommand = Serial.read();
+    Serial.println(currentCommand);
+  
+
+    switch (currentCommand) {
+      case 'w': // Avanzar
+        digitalWrite( Motor1A, 1);
+        digitalWrite( Motor1B, 0);
+        digitalWrite( Motor2A, 1);
+        digitalWrite( Motor2B, 0);
+        break;
+
+      case 'r': // Retroceder
+        digitalWrite( Motor1B, 1);
+        digitalWrite( Motor1A, 0);
+        digitalWrite( Motor2A, 0);
+        digitalWrite( Motor2B, 1);
+        break;
+
+      case 'a': // Left
+        digitalWrite( Motor1A,0);
+        digitalWrite( Motor1B,1);
+        digitalWrite( Motor2A,1);
+        digitalWrite( Motor2B,0);
+        break;
+
+      case 'd': // Right
+        digitalWrite( Motor1A, 1);
+        digitalWrite( Motor1B, 0);
+        digitalWrite( Motor2A, 0);
+        digitalWrite( Motor2B, 1);
+        break;
+
+      case 's': // stop
+        digitalWrite( Motor1A, 0);
+        digitalWrite( Motor1B, 0);
+        digitalWrite( Motor2A, 0);
+        digitalWrite( Motor2B, 0);
+        break;
+
+        //Servos Movement
+
+      case '2':
+        if (pos > 0) {
+      pos--;  // Decrementar la posición
+      servo1.write(pos); 
+      delay (20);  // Controlar la velocidad del movimiento
+    }
+    break;
+
+      case '8':
+        if (pos < 180) {
+        pos++;  
+        servo1.write(pos);
+        delay(20); 
+        }
+      break;
+
+      case '4':
+        if (pos2 > 0) {
+      pos2--;  
+      servo2.write(pos2); 
+      delay (20); 
+    }
+    break;
+
+      case '6':
+        if (pos2 < 180) {
+        pos2++;  
+        servo2.write(pos2);
+        delay(20); 
+        }
+      break;
+
+    case 'l':
+        if (posgarra > 0) {
+      posgarra--;  //derecha
+      servogarra.write(posgarra); 
+      delay (20); 
+    }
+    break;
+
+      case 'o':
+        if (posgarra < 180) {
+        posgarra++;  //izquierda
+        servogarra.write(posgarra);
+        delay(20); 
+        }
+      break;
+
+      case 'i':
+        if (posrotor > 0) {
+      posrotor--;  
+      servorotor.write(posrotor); 
+      delay (20); 
+    }
+    break;
+
+      case 'k':
+        if (posrotor < 180) {
+        posrotor++;  
+        servorotor.write(posrotor);
+        delay(20); 
+        }
+      break;
+
+    }
+
+    if (currentCommand == '1'){ // Descanso
+        Prepos1 = 30;
+        Prepos2 = 180;
+        
+
+        while (pos != Prepos1) {
+          if (pos < Prepos1) pos++;
+          else if (pos > Prepos1) pos--;
+          servo1.write(pos);
+          delay(20);
+        }
+
+        while (pos2 != Prepos2) {
+          if (pos2 < Prepos2) pos2++;
+          else if (pos2 > Prepos2) pos2--;
+          servo2.write(pos2);
+          delay(20);
+        }
+      }
+      
+
+      if (currentCommand == '0'){ // Reset
+        Prepos1 = 90;
+        Prepos2 = 90;
+        Preposrotor = 90;
+        Preposgarra = 180;
+
+
+        while (pos != Prepos1) {
+          if (pos < Prepos1) pos++;
+          else if (pos > Prepos1) pos--;
+          servo1.write(pos);
+          delay(20);
+        }
+
+        while (pos2 != Prepos2) {
+          if (pos2 < Prepos2) pos2++;
+          else if (pos2 > Prepos2) pos2--;
+          servo2.write(pos2);
+          delay(20);
+        }  
+
+        while (posrotor != Preposrotor) {
+          if (posrotor < Preposrotor) posrotor++;
+          else if (posrotor > Preposrotor) posrotor--;
+          servorotor.write(posrotor);
+          delay(20);
+        }
+
+        while (posgarra != Preposgarra) {
+          if (posgarra < Preposgarra) posgarra++;
+          else if (posrotor > Preposgarra) posgarra--;
+          servogarra.write(posgarra);
+          delay(20);
+        }
+
+      }
+
+
+  }
+}

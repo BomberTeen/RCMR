@@ -1,0 +1,36 @@
+#include <Adafruit_SCD30.h>
+#include <Servo.h>
+
+Adafruit_SCD30 scd30;
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println("Sensor test");
+
+  if (!scd30.begin()) {
+    Serial.println("Failed to find sensor");
+    while (1) delay(10);  
+  }
+
+  Serial.println("SCD30 found");
+ Serial.println("Measurement interval: " + String(scd30.getMeasurementInterval()) + " seconds");
+}
+
+void loop() {
+  if (scd30.dataReady()){
+    Serial.println("Data available:");
+
+    if (!scd30.read()){
+      Serial.println("Error al obtener data");
+      return;
+    }
+    
+    Serial.println("CO2: " + String(scd30.CO2, 1) + " ppm");
+    Serial.println("temp: " + String(scd30.temperature, 1 ) + " centigrados");
+    Serial.println("Humedad: " + String(scd30.relative_humidity, 1) + "%");
+    Serial.println("----------------------");
+  } else{
+    Serial.println("Esperando datos...");
+  }
+  delay(2000);
+}

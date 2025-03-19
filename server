@@ -1,0 +1,54 @@
+import socket
+import serial
+import time
+arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=1)  
+host = "0.0.0.0"
+port = 33333
+
+
+#Configurar servidor 
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((host, port))
+server_socket.listen()
+
+print(f"Servidor escuchando en {host}:{port}")
+
+while True:
+    try:
+        # Aceptar conexión del cliente 
+        client_socket, client_address = server_socket.accept()
+        print(f"Conexión establecida con {client_address}")
+
+        while True:
+            data = [client_socket.recv(1024).decode().strip()]
+            time.sleep(0.1)
+            pressed = []
+            try:
+                # Recibir comando desde la laptop
+               
+                if data:
+                   
+                    for d in data:
+                        pressed.append(d)
+
+                    if pressed :
+                        arduino.write(d)
+                        print(f"Se recibio {d}")
+
+
+
+                    # Enviar comando al Arduino asegurando que sea un solo carácter
+                       
+                else:
+                            print("Comando no reconocido")
+            except (ConnectionResetError, BrokenPipeError):
+                print("Cliente desconectado. Esperando nueva conexión...")
+                client_socket.close()
+                break
+    except KeyboardInterrupt:
+        print("Servidor detenido.")
+        break
+
+# Cerrar conexiones
+server_socket.close()
+arduino.close()

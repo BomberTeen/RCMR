@@ -1,0 +1,59 @@
+import cv2
+import numpy as np
+from pyzbar import pyzbar
+from datetime import datetime
+import os
+from func import *
+import keyboard
+
+cap = cv2.VideoCapture(1)
+qr_file = "qr_detections/qr_code.txt"
+
+
+codigos_guardados = cargar_codigos_existentes(qr_file)
+
+while True:
+    ret, image = cap.read()
+    prepare_image(image)
+   
+    if not ret:
+        print("Error al acceder a la camara")
+        break
+
+    detection = pyzbar.decode(image)
+    
+    for i in range(len(detection)):
+        x, y, w, h= detection[i].rect
+        cv2.rectangle(image, (x,y), (x + w, y + h), (255, 0, 0), 2)
+        text = detection[i].data.decode("utf-8") 
+        
+
+        if keyboard.is_pressed("F11"):
+            fecha_hora_actual = datetime.now().strftime("%H-%M-%S")
+            ruta_guardado = f"qr_detections/presssed---{fecha_hora_actual}.jpg"
+            cv2.imwrite(ruta_guardado, image)
+
+        if len(detection) >=8:
+            fecha_hora_actual = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            ruta_guardado = f"qr_detections/8---{fecha_hora_actual}.jpg"
+            cv2.imwrite(ruta_guardado, image)
+        
+        if text not in codigos_guardados:
+            with open(qr_file, "a", encoding="utf-8" ) as f:
+                f.write(text + "\n")
+            codigos_guardados.add(text)
+            
+            cv2.imwrite(ruta_guardado, image)
+            print(f"Nuevo codigo guardo: {text}")
+        
+        cv2.putText(image, text, (x, y-10), cv2.FONT_HERSHEY_DUPLEX, 0.7, (255,255,255), 2)
+
+    cv2.imshow("qr", image)
+    if cv2.waitKey(1) & 0xFF == ord ('q'): 
+        break
+
+cv2.destroyAllWindows()
+
+print("done")
+
+

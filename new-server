@@ -1,0 +1,53 @@
+import socket
+import keyboard
+import time
+
+
+
+comandos = ['w', 's', 'd', 'a','z','x', 'd', 'k', 'm', 'o', 'p','t','y', '3', 'v']
+server_host = "192.168.1.50" 
+server_port = 33333
+
+
+def conectar():
+    while True:
+        try:
+            
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client_socket.settimeout(1)
+            client_socket.connect((server_host, server_port))
+            print("Conexión establecida con el servidor")
+            return client_socket
+        except (ConnectionRefusedError, OSError):
+            print("Intentando reconectar...")
+            
+
+client_socket = conectar()
+
+print("Conectado al servidor.")
+try:
+    while True:
+        
+        time.sleep(0.1)
+        pressed = []
+        for tecla in comandos:
+            if keyboard.is_pressed(tecla):
+                pressed.append(tecla)
+        if pressed:
+            for tecla in pressed:
+                print(f"Se presiono la tecla {tecla}")
+                client_socket.send(tecla.encode())
+        else:
+            p = 'p'
+            client_socket.send(p.encode())
+            print("Comando enviado: apagar")
+       
+
+except KeyboardInterrupt:
+    print("Desconectando...")
+    client_socket.close()
+finally:
+    client_socket.close()
+
+
+    

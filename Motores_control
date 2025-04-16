@@ -1,0 +1,88 @@
+#include <SoftwareSerial.h>
+#include "DualG2HighPowerMotorShield.h"
+
+DualG2HighPowerMotorShield18v22 md;
+ 
+void setup() {
+  Serial.begin(115200);
+  md.calibrateCurrentOffsets();
+ 
+  delay(10);
+  
+  md.enableDrivers();
+  md.flipM2(true);
+  Serial.println("Conexion establecida");
+}
+
+void Avanzar(){
+//stopIfFault();
+md.setM1Speed(400);
+md.setM2Speed(400);
+}
+
+void Detener(){
+// stopIfFault();
+md.setM1Speed(0);
+md.setM2Speed(0);
+}
+
+
+void Retroceder() {
+// stopIfFault();
+md.setM1Speed(-400);
+md.setM2Speed(-400);
+}
+
+void Derecha() {
+//stopIfFault();
+md.setM1Speed(-400);
+md.setM2Speed(400);
+}
+
+
+void Izquierda(){
+  //stopIfFault();
+  
+md.setM1Speed(400);
+md.setM2Speed(-400);
+}
+
+void loop() {
+  if (Serial.available() > 0){
+    char currentCommand = Serial.read();
+    Serial.println(currentCommand);
+
+  
+
+    /*Con switch podemos cambiar y usar facilmente entre
+    las funciones que declaramos anteriormente
+    para el movimiento de los servos */
+    switch(currentCommand){
+
+      case 'w':
+      Avanzar();
+      break;
+
+      case 's':
+      Retroceder();
+      break;
+
+      case 'd':
+      Derecha();
+      break;
+
+      case 'a':
+      Izquierda();     
+      break;
+
+      case 'p':
+      Detener();
+      break;
+
+      case 'h':
+      md.enableDrivers();
+      break;
+    
+    }
+}
+}

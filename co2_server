@@ -1,0 +1,59 @@
+import socket
+import serial
+import time
+import threading
+
+arduino = serial.Serial('/dev/ttyACM0', 115200, timeout=1)  
+host = "0.0.0.0"
+port = 33333
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((host, port))
+server_socket.listen()
+
+print(f"Servidor escuchando en {host}:{port}")
+pressed = []
+
+def recv_arduino_data():
+    while True:
+        if arduino.in_waiting > 0:
+            reader = arduino.readline().decode('utf-8').strip()
+            time.sleep(0.5)
+            print(reader)
+
+
+def send_to_arduino():
+     while True:
+        try:
+            data = client_socket.recv(1024).decode().strip()
+            if data:
+                for d in data:
+                    pressed.append(d)
+                    if pressed:
+                        arduino.write(d.encode())
+                        #print(f"Se envio {d}")
+
+        except Exception as e:
+            print(f"[ERROR] Cliente desconectado: {e}")
+            break
+                   
+
+try:
+    client_socket, client_address = server_socket.accept()
+    print(f"Conexión establecida con {client_address}")
+    
+    
+    threading.Thread(target=send_to_arduino, daemon=True).start()
+
+    threading.Thread(target=recv_arduino_data, daemon=True).start()
+
+    while True:
+        time.sleep(0.1)
+
+except KeyboardInterrupt:
+    print("Servidor detenido.")
+
+finally:
+    server_socket.close()
+    arduino.close()
+

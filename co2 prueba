@@ -1,47 +1,53 @@
+  // Basic demo for readings from Adafruit SCD30
 #include <Adafruit_SCD30.h>
-#include <Servo.h>
 
-Adafruit_SCD30 scd30;
+Adafruit_SCD30  scd30;
 
-void setup() {
+
+void setup(void) {
   Serial.begin(115200);
-  Serial.println("Sensor test");
+  while (!Serial) delay(10);     // will pause Zero, Leonardo, etc until serial console opens
 
+  Serial.println("Adafruit SCD30 test!");
+
+  // Try to initialize!
   if (!scd30.begin()) {
-    Serial.println("Failed to find sensor");
-    while (1) delay(1000);  
+    Serial.println("Failed to find SCD30 chip");
+    while (1) { delay(10); }
   }
+  Serial.println("SCD30 Found!");
 
-  Serial.println("SCD30 found");
-  Serial.println("Measurement interval: " + String(scd30.getMeasurementInterval()) + " seconds");
+
+  // if (!scd30.setMeasurementInterval(10)){
+  //   Serial.println("Failed to set measurement interval");
+  //   while(1){ delay(10);}
+  // }
+  Serial.print("Measurement Interval: "); 
+  Serial.print(scd30.getMeasurementInterval()); 
+  Serial.println(" seconds");
 }
 
 void loop() {
- 
+  if (scd30.dataReady()){
+    Serial.println("Data available!");
 
-  if (scd30.dataReady()) {
-    Serial.println("Data available:");
+    if (!scd30.read()){ Serial.println("Error reading sensor data"); return; }
 
-    if (!scd30.read()) {
-      Serial.println("Error al obtener data");
-      return;
-    }
-
-    
-    Serial.print("CO2: ");
-    Serial.print(scd30.CO2, 1);
-    Serial.print(" ppm, ");
-    
     Serial.print("Temperature: ");
-    Serial.print(scd30.temperature, 1);
-    Serial.print(" °C, ");
+    Serial.print(scd30.temperature);
+    Serial.println(" degrees C");
     
-    Serial.print("Humidity: ");
-    Serial.print(scd30.relative_humidity, 1);
+    Serial.print("Relative Humidity: ");
+    Serial.print(scd30.relative_humidity);
     Serial.println(" %");
     
-    Serial.println("----------------------");
-  } 
- 
-}
+    Serial.print("CO2: ");
+    Serial.print(scd30.CO2, 3);
+    Serial.println(" ppm");
+    Serial.println("");
+  } else {
+    //Serial.println("No data");
+  }
 
+  delay(100);
+}

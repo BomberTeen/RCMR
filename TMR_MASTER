@@ -35,22 +35,23 @@ class Temporizador {
 
 void sensor(){
 if (scd30.dataReady()){
-    Serial.println("Data available!");
+    Serial.println("Data available");
 
     if (!scd30.read()){ Serial.println("Error reading sensor data"); return; }
 
+    //Serial.println("Measurement interval: " + String(scd30.getMeasurementInterval()) + " seconds");
+     
     Serial.print("Temperature: ");
-    Serial.print(scd30.temperature);
-    Serial.println(" degrees C");
-    
-    Serial.print("Relative Humidity: ");
-    Serial.print(scd30.relative_humidity);
+    Serial.print(scd30.temperature, 1);
+    Serial.print(" °C, ");
+    Serial.print("CO2: ");
+    Serial.print(scd30.CO2, 1);
+    Serial.print(" ppm, ");
+     Serial.print("Humidity: ");
+    Serial.print(scd30.relative_humidity, 1);
     Serial.println(" %");
     
-    Serial.print("CO2: ");
-    Serial.print(scd30.CO2, 3);
-    Serial.println(" ppm");
-    Serial.println("");
+    Serial.println("----------------------");
   } 
 
 }

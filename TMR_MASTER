@@ -1,0 +1,160 @@
+#include <SoftwareSerial.h>
+#include "DualG2HighPowerMotorShield.h"
+#include <Adafruit_SCD30.h>
+
+DualG2HighPowerMotorShield18v22 md;
+Adafruit_SCD30 scd30; 
+
+class Temporizador {
+  private:
+    unsigned long tiempo;
+    unsigned long inicial = millis();
+
+  public:
+    Temporizador(unsigned long tiempo) {
+      this->tiempo = tiempo;
+      inicial = millis();
+    } 
+
+    long faltante() {
+      return tiempo + inicial - millis();
+    }
+
+    bool termino() {
+      return faltante() <= 0;
+    }
+
+    void reiniciar() {
+      inicial = millis();
+    }
+
+    void cambiar(long nuevo) {
+      tiempo = nuevo;
+    }
+};
+
+void sensor(){
+if (scd30.dataReady()){
+    Serial.println("Data available!");
+
+    if (!scd30.read()){ Serial.println("Error reading sensor data"); return; }
+
+    Serial.print("Temperature: ");
+    Serial.print(scd30.temperature);
+    Serial.println(" degrees C");
+    
+    Serial.print("Relative Humidity: ");
+    Serial.print(scd30.relative_humidity);
+    Serial.println(" %");
+    
+    Serial.print("CO2: ");
+    Serial.print(scd30.CO2, 3);
+    Serial.println(" ppm");
+    Serial.println("");
+  } 
+
+}
+
+
+void Avanzar(){
+//stopIfFault();
+md.setM1Speed(400);
+md.setM2Speed(400);
+}
+
+void Detener(){
+// stopIfFault();
+md.setM1Speed(0);
+md.setM2Speed(0);
+}
+
+
+void Retroceder() {
+// stopIfFault();
+md.setM1Speed(-400);
+md.setM2Speed(-400);
+}
+
+void Derecha() {
+//stopIfFault();
+md.setM1Speed(-400);
+md.setM2Speed(400);
+}
+
+
+void Izquierda(){
+  //stopIfFault();
+md.setM1Speed(400);
+md.setM2Speed(-400);
+}
+
+void setup() {
+  Serial.begin(115200);
+  Serial.setTimeout(10);
+  md.calibrateCurrentOffsets();
+ 
+  delay(10);
+  
+  md.enableDrivers();
+  md.flipM2(true);
+  Serial.println("Conexion establecida");
+  Serial.println("Sensor test"); delay(20);
+  if (!scd30.begin()) {
+    Serial.println("Failed to find sensor"); } 
+  else{ Serial.println("SENSOR FOUND");}
+  delay(1000); 
+  sensor();
+ 
+}
+
+char lastCommand = '\0';
+Temporizador co2_timer = Temporizador(5000);
+
+void loop() {
+ 
+ if(co2_timer.termino()){
+  co2_timer.reiniciar();
+  sensor();
+ }
+ 
+  while (Serial.available() > 0){
+    char currentCommand = Serial.read();
+   
+    if(currentCommand != lastCommand){
+      lastCommand = currentCommand;
+
+
+  
+      switch(currentCommand){
+
+        case 'w':
+        Avanzar();
+        break;
+
+        case 's':
+        Retroceder();
+        break;
+
+        case 'd':
+        Derecha();
+        break;
+
+        case 'a':
+        Izquierda();     
+        break;
+
+        case 'p':
+        Detener();
+        break;
+
+        case 'h':
+        md.enableDrivers();
+        break;
+    
+    }
+     if (currentCommand == 'p') {
+      lastCommand = '\0';}
+
+    }
+  }
+}

@@ -1,7 +1,10 @@
 #include <SoftwareSerial.h>
 #include "DualG2HighPowerMotorShield.h"
 #include <Adafruit_SCD30.h>
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 
+Adafruit_PWMServoDriver pca9685 = Adafruit_PWMServoDriver();
 DualG2HighPowerMotorShield18v22 md;
 Adafruit_SCD30 scd30; 
 
@@ -32,6 +35,62 @@ class Temporizador {
       tiempo = nuevo;
     }
 };
+
+class ServoControl{
+  private:
+    static Adafruit_PWMServoDriver pca9685;
+    
+    unsigned int canal;
+    unsigned long intervalo;
+    Temporizador timer = NULL;
+    
+  public:
+  unsigned int MAX = 375; //no se usan
+  unsigned int MIN = 102; //no se usan
+  unsigned int pulso;
+  unsigned int actual;
+  ServoControl(unsigned int canal, unsigned int pulso, unsigned long intervalo){
+    this->canal = canal;
+    this->pulso = pulso;
+    this->actual = pulso;
+    timer = Temporizador(intervalo);
+  }
+
+  void inciar(unsigned long inicio){
+    pca9685.setPWM(canal, 0, inicio); 
+    actual = inicio;
+  }
+ 
+  static void iniciardriver() {
+      pca9685.begin();
+      pca9685.setPWMFreq(50);
+    }
+ 
+  void stop() {
+      pulso = actual;
+    }
+
+    void update() {
+      if (actual == pulso) return;
+      if (!timer.termino()) return;
+      timer.reiniciar();
+      if (actual > pulso) {actual = actual- 3;}
+      else actual = actual + 3;
+
+      pca9685.setPWM(canal, 0, actual);
+    }
+
+
+   void cambiar_pulso(unsigned int nuevo_pulso){
+    pulso = nuevo_pulso;
+  }
+
+  void cambiar_velocidad( unsigned long nueva_velocidad){
+    intervalo = nueva_velocidad;
+  } 
+
+};
+
 
 void sensor(){
 if (scd30.dataReady()){
@@ -89,21 +148,47 @@ md.setM1Speed(400);
 md.setM2Speed(-400);
 }
 
+
+
+unsigned int MAX1 = 375;
+unsigned int MIN1 = 102;
+
+
+Adafruit_PWMServoDriver ServoControl::pca9685;
+ServoControl back1 = ServoControl(0, MIN1, 20);
+ServoControl back2 = ServoControl(1, MAX1, 20);
+ServoControl front1 = ServoControl(2, 420, 20);
+ServoControl front2 = ServoControl(3, MIN1, 20);
+
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(10);
+  
   md.calibrateCurrentOffsets();
- 
   delay(10);
   
   md.enableDrivers();
   md.flipM2(true);
+  
+  ServoControl::iniciardriver();
+ 
   Serial.println("Conexion establecida");
+  back1 = ServoControl(0, MIN1, 20);
+  back2 = ServoControl(1, MAX1, 20);
+  front1 = ServoControl(2, 420, 20);
+  front2 = ServoControl(3, MIN1, 20);
+  
+  back1.inciar(MIN1);//arriba
+  back2.inciar(MAX1);//arriba
+  front1.inciar(420);
+  front2.inciar(MIN1); //arriba
+  
+  
   Serial.println("Sensor test"); delay(20);
   if (!scd30.begin()) {
     Serial.println("Failed to find sensor"); } 
   else{ Serial.println("SENSOR FOUND");}
-  delay(1000); 
+  delay(500); 
   sensor();
  
 }
@@ -112,6 +197,10 @@ char lastCommand = '\0';
 Temporizador co2_timer = Temporizador(5000);
 
 void loop() {
+back1.update();
+back2.update();
+front2.update();
+front1.update();
  
  if(co2_timer.termino()){
   co2_timer.reiniciar();
@@ -146,16 +235,61 @@ void loop() {
 
         case 'p':
         Detener();
+        back1.stop();
+        back2.stop();
+        front2.stop();
         break;
 
-        case 'h':
+        case 'l':
         md.enableDrivers();
         break;
+
+        case 'c'://abajo
+        back1.cambiar_pulso(MAX1);
+        back2.cambiar_pulso(MIN1);
+        break;
+
+        case 'v'://arriba
+        back1.cambiar_pulso(MIN1);
+        back2.cambiar_pulso(MAX1);
+        break;
+
+        case 't'://arriba
+        front2.cambiar_pulso(MIN1); //no cambiar
+        break;
+
+        
+        case 'g'://abajo
+        front2.cambiar_pulso(330);
+        break;
+
+        case 'y'://arriba
+        front1.cambiar_pulso(420); //no cambiar
+        break;
+
+        
+        case 'h'://abajo
+        front1.cambiar_pulso(MIN1);
+        break;
+
+        case 'z':
+        front1.cambiar_pulso(420);
+        front2.cambiar_pulso(MIN1);
+        break;
+
+        case 'x':
+        front1.cambiar_pulso(MIN1);
+        front2.cambiar_pulso(330);
+        break;
+
     
-    }
-     if (currentCommand == 'p') {
+    }     if (currentCommand == 'p') {
       lastCommand = '\0';}
 
     }
   }
 }
+
+
+
+

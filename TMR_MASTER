@@ -1,5 +1,6 @@
+// 102, 235, 370 cuello
 
-        #include <SoftwareSerial.h>
+#include <SoftwareSerial.h>
 #include "DualG2HighPowerMotorShield.h"
 #include <Adafruit_SCD30.h>
 #include <Wire.h>

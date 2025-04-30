@@ -1,4 +1,5 @@
-#include <SoftwareSerial.h>
+
+        #include <SoftwareSerial.h>
 #include "DualG2HighPowerMotorShield.h"
 #include <Adafruit_SCD30.h>
 #include <Wire.h>
@@ -58,7 +59,7 @@ class ServoControl{
 
   void inciar(unsigned long inicio){
     pca9685.setPWM(canal, 0, inicio); 
-    actual = inicio;
+    pulso = inicio;
   }
  
   static void iniciardriver() {
@@ -155,10 +156,10 @@ unsigned int MIN1 = 102;
 
 
 Adafruit_PWMServoDriver ServoControl::pca9685;
-ServoControl back1 = ServoControl(0, MIN1, 20);
-ServoControl back2 = ServoControl(1, MAX1, 20);
-ServoControl front1 = ServoControl(2, 420, 20);
-ServoControl front2 = ServoControl(3, MIN1, 20);
+ServoControl back1 = ServoControl(0, 228, 20);
+ServoControl back2 = ServoControl(1, 228, 20);
+ServoControl front1 = ServoControl(2, 228, 20);
+ServoControl front2 = ServoControl(3, 228, 20);
 
 void setup() {
   Serial.begin(115200);
@@ -173,15 +174,15 @@ void setup() {
   ServoControl::iniciardriver();
  
   Serial.println("Conexion establecida");
-  back1 = ServoControl(0, MIN1, 20);
-  back2 = ServoControl(1, MAX1, 20);
-  front1 = ServoControl(2, 420, 20);
-  front2 = ServoControl(3, MIN1, 20);
+  back1 = ServoControl(0, 228, 20);
+  back2 = ServoControl(1, 228, 20);
+  front1 = ServoControl(2, 228, 20);
+  front2 = ServoControl(3, 228, 20);
   
-  back1.inciar(MIN1);//arriba
-  back2.inciar(MAX1);//arriba
-  front1.inciar(420);
-  front2.inciar(MIN1); //arriba
+  back1.inciar(228);//arriba
+  back2.inciar(228);//arriba
+  front1.inciar(228);
+  front2.inciar(228); //arriba
   
   
   Serial.println("Sensor test"); delay(20);
@@ -238,6 +239,7 @@ front1.update();
         back1.stop();
         back2.stop();
         front2.stop();
+        front1.stop();
         break;
 
         case 'l':
@@ -272,15 +274,15 @@ front1.update();
         front1.cambiar_pulso(MIN1);
         break;
 
-        case 'z':
-        front1.cambiar_pulso(420);
+       /** case 'z':
+        front1.cambiar_pulso(450);
         front2.cambiar_pulso(MIN1);
         break;
 
         case 'x':
         front1.cambiar_pulso(MIN1);
-        front2.cambiar_pulso(330);
-        break;
+        front2.cambiar_pulso(420);
+        break;*/
 
     
     }     if (currentCommand == 'p') {
@@ -289,6 +291,9 @@ front1.update();
     }
   }
 }
+
+
+
 
 
 

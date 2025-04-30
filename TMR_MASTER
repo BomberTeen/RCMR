@@ -1,5 +1,5 @@
 // 102, 235, 370 cuello
-
+// 245-430 servo AESIR
 #include <SoftwareSerial.h>
 #include "DualG2HighPowerMotorShield.h"
 #include <Adafruit_SCD30.h>

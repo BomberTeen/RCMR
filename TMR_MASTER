@@ -1,6 +1,7 @@
 // 102, 235, 370 cuello
 //Brazo 1: 369 - 200    369 es minimo
 // 245-430 servo AESIR
+
 #include <SoftwareSerial.h>
 #include "DualG2HighPowerMotorShield.h"
 #include <Adafruit_SCD30.h>
@@ -83,6 +84,10 @@ class ServoControl{
       pca9685.setPWM(canal, 0, actual);
     }
 
+    void update_absoluto(){
+      pca9685.setPWM(canal, 0, pulso);
+    }
+
 
    void cambiar_pulso(unsigned int nuevo_pulso){
     pulso = nuevo_pulso;
@@ -162,7 +167,10 @@ ServoControl back1 = ServoControl(0, 228, 20);
 ServoControl back2 = ServoControl(1, 228, 20);
 ServoControl front1 = ServoControl(2, 228, 20);
 ServoControl front2 = ServoControl(3, 228, 20);
-
+ServoControl base = ServoControl(4, 390,25);
+ServoControl codo = ServoControl(5, 155,25);
+ServoControl cuello = ServoControl(6, 235, 30);
+int cont;
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(10);
@@ -180,12 +188,18 @@ void setup() {
   back2 = ServoControl(1, 228, 20);
   front1 = ServoControl(2, 228, 20);
   front2 = ServoControl(3, 228, 20);
-  
+  base = ServoControl(4, 390,20);
+  codo = ServoControl(5, 155, 20);
+  cuello = ServoControl(6, 235, 30);
+
+  int cont = 0;
   back1.inciar(228);//arriba
   back2.inciar(228);//arriba
   front1.inciar(228);
   front2.inciar(228); //arriba
-  
+  base.inciar(390);
+  codo.inciar(155);
+  cuello.inciar(235);
   
   Serial.println("Sensor test"); delay(20);
   if (!scd30.begin()) {
@@ -198,12 +212,16 @@ void setup() {
 
 char lastCommand = '\0';
 Temporizador co2_timer = Temporizador(5000);
-
+Temporizador regresar = Temporizador(1000);
+//Temporizador PosInicial = Temporizador(500);
 void loop() {
+codo.update();
 back1.update();
 back2.update();
 front2.update();
 front1.update();
+base.update();
+cuello.update();
  
  if(co2_timer.termino()){
   co2_timer.reiniciar();
@@ -236,27 +254,29 @@ front1.update();
         Izquierda();     
         break;
 
-        case 'p':
+        case 'b':
         Detener();
         back1.stop();
         back2.stop();
         front2.stop();
         front1.stop();
+        base.stop();
+        codo.stop();
+        cuello.stop();
         break;
 
-        case 'l':
+        case 'm':
         md.enableDrivers();
         break;
 
-        case 'c'://abajo
+        case 'v'://abajo
         back1.cambiar_pulso(MAX1);
         back2.cambiar_pulso(MIN1);
         break;
 
-        case 'v'://arriba
+        case 'c'://arriba
         back1.cambiar_pulso(MIN1);
         back2.cambiar_pulso(MAX1);
-
         break;
 
         case 't'://arriba
@@ -265,11 +285,11 @@ front1.update();
 
         
         case 'g'://abajo
-        front2.cambiar_pulso(330);
+        front2.cambiar_pulso(MAX1);
         break;
 
         case 'y'://arriba
-        front1.cambiar_pulso(420); //no cambiar
+        front1.cambiar_pulso(MAX1); //no cambiar
         break;
 
         
@@ -277,27 +297,55 @@ front1.update();
         front1.cambiar_pulso(MIN1);
         break;
 
-       /** case 'z':
-        front1.cambiar_pulso(450);
+        case 'z':
+        front1.cambiar_pulso(MAX1);
         front2.cambiar_pulso(MIN1);
         break;
 
         case 'x':
         front1.cambiar_pulso(MIN1);
-        front2.cambiar_pulso(420);
-        break;*/
+        front2.cambiar_pulso(357);
+        break;
+
+        case 'q':
+        front1.cambiar_pulso(357);
+        front2.cambiar_pulso(102);
+        back1.cambiar_pulso(102);       
+        back2.cambiar_pulso(357);
+        break;
+        
+        case 'n':
+        if(codo.pulso >  330) { 
+        codo.cambiar_pulso(155);
+        base.cambiar_pulso(390);  }     
+        break;
+       
+        case 'u':
+        base.cambiar_pulso(210);
+        codo.cambiar_pulso(330);
+        break;
+        
+        case 'i':
+        codo.cambiar_pulso(390);
+        break;
+
+        case 'k':
+        codo.cambiar_pulso(300);
+        break;
+
+        case 'j':
+        cuello.cambiar_pulso(102);
+        break;
+
+        case 'l':
+        cuello.cambiar_pulso(370);
+        break;
 
     
-    }     if (currentCommand == 'p') {
+    }     if (currentCommand == 'b') {
       lastCommand = '\0';}
 
     }
   }
 }
-
-
-
-
-
-
 

@@ -163,13 +163,13 @@ unsigned int MIN1 = 102;
 
 
 Adafruit_PWMServoDriver ServoControl::pca9685;
-ServoControl back1 = ServoControl(0, 228, 20);
-ServoControl back2 = ServoControl(1, 228, 20);
-ServoControl front1 = ServoControl(2, 228, 20);
-ServoControl front2 = ServoControl(3, 228, 20);
-ServoControl base = ServoControl(4, 390,25);
-ServoControl codo = ServoControl(5, 155,25);
-ServoControl cuello = ServoControl(6, 235, 30);
+ServoControl back1 = ServoControl(0, 228, 15);
+ServoControl back2 = ServoControl(1, 228, 15);
+ServoControl front1 = ServoControl(2, 228, 15);
+ServoControl front2 = ServoControl(3, 228, 15);
+ServoControl base = ServoControl(4, 390,20);
+ServoControl codo = ServoControl(5, 155,20);
+ServoControl cuello = ServoControl(6, 235, 20);
 int cont;
 void setup() {
   Serial.begin(115200);
@@ -184,15 +184,15 @@ void setup() {
   ServoControl::iniciardriver();
  
   Serial.println("Conexion establecida");
-  back1 = ServoControl(0, 228, 20);
-  back2 = ServoControl(1, 228, 20);
-  front1 = ServoControl(2, 228, 20);
-  front2 = ServoControl(3, 228, 20);
+  back1 = ServoControl(0, 228, 15);
+  back2 = ServoControl(1, 228, 15);
+  front1 = ServoControl(2, 228, 15);
+  front2 = ServoControl(3, 228, 15);
   base = ServoControl(4, 390,20);
   codo = ServoControl(5, 155, 20);
-  cuello = ServoControl(6, 235, 30);
+  cuello = ServoControl(6, 235, 20);
 
-  int cont = 0;
+  //int cont = 0;
   back1.inciar(228);//arriba
   back2.inciar(228);//arriba
   front1.inciar(228);
@@ -294,7 +294,7 @@ cuello.update();
 
         
         case 'h'://abajo
-        front1.cambiar_pulso(MIN1);
+        front1.cambiar_pulso(MIN1);  
         break;
 
         case 'z':
@@ -342,8 +342,8 @@ cuello.update();
         break;
 
     
-    }     if (currentCommand == 'b') {
-      lastCommand = '\0';}
+    }     //if (currentCommand == 'b') {
+      //lastCommand = '\0';}
 
     }
   }

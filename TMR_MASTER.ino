@@ -1,4 +1,7 @@
 
+
+
+     
   // 102, 235, 370 cuello
 //Brazo 1: 369 - 200    369 es minimo
 // 245-430 servo AESIR
@@ -202,10 +205,10 @@ void setup() {
   back2.inciar(228);//arriba
   front1.inciar(228);
   front2.inciar(228); //arriba
-  //base.inciar(390);
-  //codo.inciar(155);
-  //cuello.inciar(235);
-  //garra.inciar(102);
+  base.inciar(390);
+  codo.inciar(155);
+  cuello.inciar(235);
+  garra.inciar(102);
   
   Serial.println("Sensor test"); delay(20);
   if (!scd30.begin()) {
@@ -328,13 +331,13 @@ garra.update();
         base.cambiar_pulso(390);  }     
         break;
        
-        case 'u':
+        case 'u':ht
         base.cambiar_pulso(210);
-        codo.cambiar_pulso(330);
+        codo.cambiar_pulso(350);
         break;
         
         case 'i':
-        codo.cambiar_pulso(390);
+        codo.cambiar_pulso(400);
         break;
 
         case 'k':
@@ -368,4 +371,3 @@ garra.update();
 
 
  
-

@@ -1,4 +1,5 @@
-// 102, 235, 370 cuello
+
+  // 102, 235, 370 cuello
 //Brazo 1: 369 - 200    369 es minimo
 // 245-430 servo AESIR
 
@@ -126,8 +127,8 @@ if (scd30.dataReady()){
 
 void Avanzar(){
 //stopIfFault();
-md.setM1Speed(400);
-md.setM2Speed(400);
+md.setM1Speed(-400);
+md.setM2Speed(-400);
 }
 
 void Detener(){
@@ -139,8 +140,8 @@ md.setM2Speed(0);
 
 void Retroceder() {
 // stopIfFault();
-md.setM1Speed(-400);
-md.setM2Speed(-400);
+md.setM1Speed(400);
+md.setM2Speed(400);
 }
 
 void Derecha() {
@@ -170,6 +171,8 @@ ServoControl front2 = ServoControl(3, 228, 15);
 ServoControl base = ServoControl(4, 390,20);
 ServoControl codo = ServoControl(5, 155,20);
 ServoControl cuello = ServoControl(6, 235, 20);
+ServoControl garra = ServoControl(7, 102, 15);
+
 int cont;
 void setup() {
   Serial.begin(115200);
@@ -179,7 +182,9 @@ void setup() {
   delay(10);
   
   md.enableDrivers();
+  
   md.flipM2(true);
+
   
   ServoControl::iniciardriver();
  
@@ -191,15 +196,16 @@ void setup() {
   base = ServoControl(4, 390,20);
   codo = ServoControl(5, 155, 20);
   cuello = ServoControl(6, 235, 20);
-
+  garra = ServoControl(7, 102, 15);
   //int cont = 0;
   back1.inciar(228);//arriba
   back2.inciar(228);//arriba
   front1.inciar(228);
   front2.inciar(228); //arriba
-  base.inciar(390);
-  codo.inciar(155);
-  cuello.inciar(235);
+  //base.inciar(390);
+  //codo.inciar(155);
+  //cuello.inciar(235);
+  //garra.inciar(102);
   
   Serial.println("Sensor test"); delay(20);
   if (!scd30.begin()) {
@@ -222,6 +228,7 @@ front2.update();
 front1.update();
 base.update();
 cuello.update();
+garra.update();
  
  if(co2_timer.termino()){
   co2_timer.reiniciar();
@@ -263,6 +270,7 @@ cuello.update();
         base.stop();
         codo.stop();
         cuello.stop();
+        garra.stop();
         break;
 
         case 'm':
@@ -341,6 +349,14 @@ cuello.update();
         cuello.cambiar_pulso(370);
         break;
 
+        case 'o':
+        garra.cambiar_pulso(330);
+        break;
+
+        case 'p':
+        garra.cambiar_pulso(102);
+        break;
+
     
     }     //if (currentCommand == 'b') {
       //lastCommand = '\0';}
@@ -348,4 +364,8 @@ cuello.update();
     }
   }
 }
+
+
+
+ 
 
